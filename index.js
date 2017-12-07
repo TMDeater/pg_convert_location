@@ -24,8 +24,8 @@ function readfile(filepath){
         url: filepath,
         dataType: 'text',
     }).done(function(data){
-        loadF(data,function(){
-            writeFile(DistrictList, LatList, LngList);
+        loadF(data, function(wholeList){
+            writeFile(wholeList);
         });
     });
 }
@@ -38,7 +38,13 @@ function loadF(data,callback){
         if (allRows[rowIndex]=="")  break;
         var allCells = allRows[rowIndex].split("\t");
         if (allCells[1]=="") break;
+        if (allCells[1]=="ENGLISH NAME") continue;
         var districtName = convertCharacterCase(allCells[6]);
+        if (districtName=="" || districtName=="District" || districtName=="Country Park"){
+            continue;
+        }else if(districtName=="North"){
+            districtName = "North Point";
+        }
         DistrictList.push(districtName);
         var northing = allCells[5];
         var easting = allCells[4];
@@ -46,17 +52,21 @@ function loadF(data,callback){
         getLatLng(northing, easting,function(LatLng){
             LatList.push(LatLng[0]);
             LngList.push(LatLng[1]);
-            console.log("now LatLng length is: "+LatList.length);
+            console.log(DistrictList[LatList.length-1]+","+LatList[LatList.length-1]+","+LngList[LngList.length-1]);
         });
     }
+    callback([DistrictList,LatList,LngList]);
 }
 
-function writeFile(dList, LtList, LgList){
-    callback.call
+function writeFile(wholeList){
+    var dList = wholeList[0];
+    var LtList = wholeList[1];
+    var LgList = wholeList[2];
     var rows = "District,Lat,Long\n";
     for (var i=0;i<dList.length;i++){
         rows+= (dList[i]+","+LtList[i]+","+LgList[i]+"\n");
     }
+    //console.log(rows);
     // downloadCSV(rows);
 }
 
