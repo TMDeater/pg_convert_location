@@ -1,19 +1,27 @@
 /**
  * Created by MSI on 29-Nov-17.
  */
-var lat,lng;
+// var lat,lng;
 var DistrictList = [];
 var LatList = [];
 var LngList = [];
 
 
-function getLatLng(n,e,callback){
-    $.getJSON("http://www.geodetic.gov.hk/transform/v2/?inSys=hkgrid&n="+n+"&e="+e)
+function getLatLng(districtname,n,e){
+    return $.getJSON("http://www.geodetic.gov.hk/transform/v2/?inSys=hkgrid&n="+n+"&e="+e)
         .then(function(data){
-            lat = data.wgsLat;
-            lng = data.wgsLong;
-            callback([lat,lng]);
-            return [lat, lng];
+            //lat = data.wgsLat;
+            //lng = data.wgsLong;
+            //callback([lat,lng]);
+            //return [lat, lng];
+            // LatList.push(data.wgsLat);
+            // LngList.push(data.wgsLong);
+            //console.log(DistrictList[LatList.length-1]+","+LatList[LatList.length-1]+","+LngList[LngList.length-1]);
+            console.log(districtname+","+data.wgsLat+","+data.wgsLong);
+            return {
+                lat:data.wgsLat,
+                lng:data.wgsLong
+            }
     });
 
 }
@@ -31,7 +39,7 @@ function readfile(filepath){
 }
 
 //this function will get the data: DistrictList, LatList and LngList
-function loadF(data,callback){
+function loadF(data){
     var allRows = data.split('\n');
     allRows[0];
     for (var rowIndex = 1; rowIndex<allRows.length; rowIndex++){
@@ -49,13 +57,13 @@ function loadF(data,callback){
         var northing = allCells[5];
         var easting = allCells[4];
         //need wait for callback so any thing wants to do should put it in here
-        getLatLng(northing, easting,function(LatLng){
-            LatList.push(LatLng[0]);
-            LngList.push(LatLng[1]);
-            console.log(DistrictList[LatList.length-1]+","+LatList[LatList.length-1]+","+LngList[LngList.length-1]);
+        getLatLng(districtName,northing, easting).then(function(LatLng){
+            // LatList.push(LatLng.lat);
+            // LngList.push(LatLng.lng);
+            // console.log(DistrictList[LatList.length]+","+LatList[LatList.length-1]+","+LngList[LngList.length-1]);
         });
+        setTimeout('',10000)
     }
-    callback([DistrictList,LatList,LngList]);
 }
 
 function writeFile(wholeList){
